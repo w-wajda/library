@@ -3,7 +3,12 @@ from django.contrib.auth.models import (
 )
 from rest_framework import serializers
 
-from libraries.models import Book
+from libraries.models import (
+    Book,
+    Author,
+    Category,
+    Publisher
+)
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -15,4 +20,22 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ['id', 'title', 'author', 'categories', 'description']
+        fields = ['id', 'title', 'author', 'categories', 'publisher', 'publication_year', 'description']
+
+
+class AuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Author
+        fields = ['id', 'name', 'surname']
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+
+
+class PublisherSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Publisher
+        fields = ['id', 'name']
