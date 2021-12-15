@@ -1,5 +1,11 @@
 from django.contrib import admin
-from libraries.models import Author, Category, Publisher, Book
+from libraries.models import (
+    Author,
+    Category,
+    Publisher,
+    Book,
+    Review
+)
 
 
 class AuthorAdmin(admin.ModelAdmin):
@@ -26,19 +32,25 @@ class CategoryAdmin(admin.ModelAdmin):
 
 class BookAdmin(admin.ModelAdmin):
     fieldsets = (
-      ('Basic data', {
-          'fields': ('title', 'author', 'description')
-      }),
-      ('Additional info', {
-          'fields': ('categories', ('publisher', 'publication_year'))
-      }),
+        ('Basic data', {
+            'fields': ('title', 'author', 'description')
+        }),
+        ('Additional info', {
+            'fields': ('categories', ('publisher', 'publication_year'))
+        }),
     )
     list_display = ('title', 'author', 'publisher', 'publication_year')
     search_fields = ('title', 'author', 'publisher')
     list_filter = ('author', 'categories', 'publisher')
 
 
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('book', 'rating')
+    search_fields = ('book',)
+
+
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Publisher, PublisherAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Book, BookAdmin)
+admin.site.register(Review, ReviewAdmin)

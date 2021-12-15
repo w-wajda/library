@@ -12,7 +12,8 @@ from libraries.models import (
     Book,
     Author,
     Category,
-    Publisher
+    Publisher,
+    Review
 )
 
 from libraries.serializers import (
@@ -20,7 +21,8 @@ from libraries.serializers import (
     BookSerializer,
     AuthorSerializer,
     CategorySerializer,
-    PublisherSerializer
+    PublisherSerializer,
+    ReviewSerializer
 )
 
 
@@ -113,3 +115,12 @@ class PublisherViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
         # else:
         # return HttpResponseNotAllowed({'Error': 'Aot allowed'})
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.method in ('GET', 'POST', 'PUT', 'DELETE'):
+            return super().dispatch(request, *args, **kwargs)

@@ -42,6 +42,31 @@ class Book(models.Model):
         return self.title
 
 
+class Review(models.Model):
+    BAD = 0
+    NOT_TO_BAD = 1
+    GOOD = 2
+    VERY_GOOD = 3
+    FANTASTIC = 4
+
+    RATING = (
+        (BAD, 'Bad'),
+        (NOT_TO_BAD, 'Not to bad'),
+        (GOOD, 'Good'),
+        (VERY_GOOD, 'Very_good'),
+        (FANTASTIC, 'Fantastic')
+    )
+
+    book = models.ForeignKey(Book, verbose_name='Book', on_delete=models.CASCADE, related_name='review')
+    rating = models.IntegerField(verbose_name='Rating', choices=RATING, default=BAD)
+    entry = models.TextField(verbose_name='Entry', default='')
+
+    def __str__(self):
+        return self.book.title
+
+
+
+
 
 
 
