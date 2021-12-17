@@ -38,10 +38,19 @@ class PublisherSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
+class BookMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['id', 'title']
+
+
 class ReviewSerializer(serializers.ModelSerializer):
+    book = BookMiniSerializer(many=False)
+
     class Meta:
         model = Review
-        fields = ['rating', 'entry']
+        fields = '__all__'
+        # depth = 2
 
 
 class BookSerializer(serializers.ModelSerializer):

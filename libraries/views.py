@@ -95,7 +95,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     def dispatch(self, request, *args, **kwargs):
         # if request.method in ('POST', 'PUT', 'DELETE') and not request.user.is_superuser:
         if request.method in ('GET', 'POST', 'PUT', 'DELETE'):
-            # return HttpResponseNotAllowed({'Error': 'Aot allowed'})
+            # return HttpResponseNotAllowed({'Error': 'Not allowed'})
             # else:
             return super().dispatch(request, *args, **kwargs)
 
@@ -114,7 +114,7 @@ class PublisherViewSet(viewsets.ModelViewSet):
         # if self.request.user.is_superuser:
         return super().update(request, *args, **kwargs)
         # else:
-        # return HttpResponseNotAllowed({'Error': 'Aot allowed'})
+        # return HttpResponseNotAllowed({'Error': 'Not allowed'})
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
