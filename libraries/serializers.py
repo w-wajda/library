@@ -52,9 +52,16 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
         # depth = 2
 
+    def update(self, instance, validated_data):
+        instance.entry = validated_data.get('entry', instance.entry)
+        instance.rating = validated_data.get('rating', instance.rating)
+        instance.save()
+
+        return instance
+
 
 class BookSerializer(serializers.ModelSerializer):
-    author = CategorySerializer(many=False)
+    author = AuthorSerializer(many=False)
     # categories = PrimaryKeyRelatedField(many=True, read_only=True)
     categories = CategorySerializer(many=True)
     publisher = PublisherSerializer(many=False)
@@ -64,7 +71,26 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = ['id', 'title', 'author', 'categories', 'publisher', 'publication_year', 'description', 'review']
 
+    def create(self, validated_data):
+        categories = validated_data['categories']
+        del validated_data['categories']
 
+        book = Book.objects.create(**validated_data)
+
+        for category in categories:
+            c = Category.objects.create(**category)
+            book.categories.add(c)
+
+        book.save()
+
+        return book
+
+    def update(self, instance, validated_data):
+        instance.author = validated_data.get('author', instance.entry)
+        instance.publisher = validated_data.get('publisher', instance.rating)
+        instance.save()
+
+        return instance
 
 
 

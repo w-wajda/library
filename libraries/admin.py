@@ -45,7 +45,8 @@ class BookAdmin(admin.ModelAdmin):
 
 
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('book', 'rating')
+    list_display = ('book', 'rating', 'date_review')
+    list_filter = ('book',)
     search_fields = ('book',)
 
 

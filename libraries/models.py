@@ -60,6 +60,7 @@ class Review(models.Model):
     book = models.ForeignKey(Book, verbose_name='Book', on_delete=models.CASCADE, related_name='review')
     rating = models.IntegerField(verbose_name='Rating', choices=RATING, default=BAD)
     entry = models.TextField(verbose_name='Entry', default='')
+    date_review = models.DateTimeField(verbose_name='Date of review', auto_now_add=False, null=True, blank=True)
 
     def __str__(self):
         return self.book.title
