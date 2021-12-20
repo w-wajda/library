@@ -1,9 +1,8 @@
 from django.contrib.auth.models import (
     User,
 )
+
 from rest_framework import serializers
-from rest_framework.relations import PrimaryKeyRelatedField
-from rest_framework.serializers import ListSerializer
 
 from libraries.models import (
     Book,
@@ -38,31 +37,18 @@ class PublisherSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
-class BookMiniSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Book
-        fields = ['id', 'title']
-
-
 class ReviewSerializer(serializers.ModelSerializer):
-    book = BookMiniSerializer(many=False)
+
+
 
     class Meta:
         model = Review
         fields = '__all__'
         # depth = 2
 
-    def update(self, instance, validated_data):
-        instance.entry = validated_data.get('entry', instance.entry)
-        instance.rating = validated_data.get('rating', instance.rating)
-        instance.save()
-
-        return instance
-
 
 class BookSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(many=False)
-    # categories = PrimaryKeyRelatedField(many=True, read_only=True)
     categories = CategorySerializer(many=True)
     publisher = PublisherSerializer(many=False)
     review = ReviewSerializer(many=True, read_only=True)
@@ -72,37 +58,47 @@ class BookSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'author', 'categories', 'publisher', 'publication_year', 'description', 'review']
 
     def create(self, validated_data):
-        categories = validated_data['categories']
-        del validated_data['categories']
-
         # dla many to one
         author = validated_data.pop('author')
-        author = Author.objects.create(**author)
+
+        name = author['name']
+        surname = author['surname']
+        birth_date = author['birth_date']
+
+        # To jest inny rodzaj zapisu get_or_create
+        # try:
+        #     author = Author.objects.get(name=name, surname=surname)
+        # except Author.DoesNotExist:
+        #     author = Author.objects.create(name=name, surname=surname, birth_date=birth_date)
+
+        author = Author.objects.get_or_create(name=name, surname=surname, defaults={'birth_date': birth_date})
         validated_data['author'] = author
 
         publisher = validated_data.pop('publisher')
-        publisher = Publisher.objects.create(**publisher)
+        name = publisher['name']
+        publisher = Publisher.objects.get_or_create(name=name)
         validated_data['publisher'] = publisher
+
+        # many do many jest wirtualnym polem, więc musze je usunąć przed stworzeniem book
+        categories = validated_data.pop('categories')
 
         book = Book.objects.create(**validated_data)
 
         # dla many to many
         for category in categories:
-            print(category)
-            c = Category.objects.create(**category)
-            book.categories.add(c)
-
-        book.save()
+            name = category['name']
+            category = Category.objects.get_or_create(name=name)
+            book.categories.add(category)
 
         return book
 
-    def update(self, instance, validated_data):
-        instance.author = validated_data.get('author', instance.entry)
-        instance.publisher = validated_data.get('publisher', instance.rating)
-        instance.save()
-
-        return instance
-
+    # def update(self, instance, validated_data):
+    #     instance.author = validated_data.get('author', instance.entry)
+    #     instance.publisher = validated_data.get('publisher', instance.rating)
+    #     instance.save()
+    #
+    #     return instance
+    #
 
 
 
