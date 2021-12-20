@@ -35,8 +35,8 @@ class Book(models.Model):
     author = models.ForeignKey(Author, verbose_name='Author', on_delete=models.CASCADE)
     categories = models.ManyToManyField(Category, verbose_name='Categories')
     publisher = models.ForeignKey(Publisher, verbose_name='Publisher', on_delete=models.CASCADE)
-    publication_year = models.PositiveSmallIntegerField(verbose_name='Publication year')
-    description = models.TextField(verbose_name='Description')
+    publication_year = models.PositiveSmallIntegerField(verbose_name='Publication year', null=True, blank=True)
+    description = models.TextField(verbose_name='Description', null=True, blank=True)
 
     def __str__(self):
         return self.title

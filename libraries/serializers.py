@@ -65,7 +65,7 @@ class BookSerializer(serializers.ModelSerializer):
     # categories = PrimaryKeyRelatedField(many=True, read_only=True)
     categories = CategorySerializer(many=True)
     publisher = PublisherSerializer(many=False)
-    review = ReviewSerializer(many=True)
+    review = ReviewSerializer(many=True, read_only=True)
 
     class Meta:
         model = Book
@@ -75,9 +75,20 @@ class BookSerializer(serializers.ModelSerializer):
         categories = validated_data['categories']
         del validated_data['categories']
 
+        # dla many to one
+        author = validated_data.pop('author')
+        author = Author.objects.create(**author)
+        validated_data['author'] = author
+
+        publisher = validated_data.pop('publisher')
+        publisher = Publisher.objects.create(**publisher)
+        validated_data['publisher'] = publisher
+
         book = Book.objects.create(**validated_data)
 
+        # dla many to many
         for category in categories:
+            print(category)
             c = Category.objects.create(**category)
             book.categories.add(c)
 
