@@ -74,7 +74,7 @@ class BookSerializer(serializers.ModelSerializer):
 
         name = author['name']
         surname = author['surname']
-        date_birth = author.get('date_birth', '')
+        date_birth = author.get('date_birth')
 
         # To jest inny rodzaj zapisu get_or_create
         # try:
@@ -104,15 +104,50 @@ class BookSerializer(serializers.ModelSerializer):
 
         return book
 
-    def update(self, instance, validated_data):
-        instance.title =
-        instance.author = validated_data.get('author', instance.entry)
-        instance.publisher = validated_data.get('publisher', instance.rating)
+    def update(self, instance: Book, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+
+        if 'author' in validated_data:
+            author = validated_data.get('author')
+
+            name = author['name']
+            surname = author['surname']
+            date_birth = author.get('date_birth')
+
+            author, created = Author.objects.get_or_create(name=name, surname=surname,
+                                                           defaults={'date_birth': date_birth})
+            instance.author = author
+
+        if 'categories' in validated_data:
+            categories = validated_data.get('categories')
+
+            new_categories = []
+            for category in categories:
+                name = category['name']
+                category, created = Category.objects.get_or_create(name=name)
+
+                # pk = id
+                new_categories.append(category.pk)
+                instance.categories.add(category)
+
+            old_categories = instance.categories.exclude(pk__in=new_categories)
+            instance.categories.remove(*old_categories)
+
+        if 'publisher' in validated_data:
+            publisher = validated_data.get('publisher')
+
+            name = publisher['name']
+
+            publisher, created = Publisher.objects.get_or_create(name=name)
+
+            instance.publisher = publisher
+
+        instance.publication_year = validated_data.get('publication_year', instance.publication_year)
+        instance.description = validated_data.get('description', instance.description)
+
         instance.save()
 
         return instance
-
-
 
 
 
