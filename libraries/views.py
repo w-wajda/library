@@ -11,6 +11,7 @@ from rest_framework import (
 )
 from rest_framework import permissions
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 
 from libraries.models import (
@@ -53,6 +54,7 @@ class BookViewSet(viewsets.ModelViewSet):
     # ordering_fields = '__all__'
     ordering = ('publication_year', )
     pagination_class = LargeResultsSetPagination
+    authentication_classes = (TokenAuthentication,)  # - jeśli mamy IsAuthenticated, to musze byc zalgowana tokenem
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
