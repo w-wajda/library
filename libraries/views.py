@@ -10,6 +10,7 @@ from rest_framework import (
     filters
 )
 from rest_framework import permissions
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from libraries.models import (
@@ -30,6 +31,12 @@ from libraries.serializers import (
 )
 
 
+class LargeResultsSetPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 10
+
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
@@ -43,6 +50,9 @@ class BookViewSet(viewsets.ModelViewSet):
     filterset_fields = ['title', 'publication_year', 'author__surname', 'categories__name']
     search_fields = ['title', 'author__surname', 'author__name', 'categories__name', 'publisher__name', ]
     ordering_fields = ['id', 'title', 'publication_year']
+    # ordering_fields = '__all__'
+    ordering = ('publication_year', )
+    pagination_class = LargeResultsSetPagination
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -60,6 +70,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     filterset_fields = ['name', 'surname']
     search_fields = ['name', 'surname']
+    pagination_class = LargeResultsSetPagination
 
     def create(self, request, *args, **kwargs):
         author = Author.objects.create(name=request.data['name'],
@@ -89,6 +100,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     filterset_fields = ['name']
     search_fields = ['name']
+    pagination_class = LargeResultsSetPagination
 
     def dispatch(self, request, *args, **kwargs):
         # if request.method in ('POST', 'PUT', 'DELETE') and not request.user.is_superuser:
@@ -104,6 +116,7 @@ class PublisherViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     filterset_fields = ['name']
     search_fields = ['name']
+    pagination_class = LargeResultsSetPagination
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -124,6 +137,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     filterset_fields = ['rating']
     search_fields = ['rating']
+    pagination_class = LargeResultsSetPagination
 
     def dispatch(self, request, *args, **kwargs):
         if request.method in ('GET', 'POST', 'PUT', 'DELETE'):
