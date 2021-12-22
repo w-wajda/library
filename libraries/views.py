@@ -3,8 +3,12 @@ from django.contrib.auth.models import (
 )
 
 from django.http.response import HttpResponseNotAllowed
+from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import viewsets
+from rest_framework import (
+    viewsets,
+    filters
+)
 from rest_framework import permissions
 from rest_framework.response import Response
 
@@ -35,6 +39,10 @@ class UserViewSet(viewsets.ModelViewSet):
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['title', 'publication_year', 'author__surname', 'categories__name']
+    search_fields = ['title', 'author__surname', 'author__name', 'categories__name', 'publisher__name', ]
+    ordering_fields = ['id', 'title', 'publication_year']
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -49,6 +57,9 @@ class BookViewSet(viewsets.ModelViewSet):
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
+    filter_backends = [filters.SearchFilter]
+    filterset_fields = ['name', 'surname']
+    search_fields = ['name', 'surname']
 
     def create(self, request, *args, **kwargs):
         author = Author.objects.create(name=request.data['name'],
@@ -75,6 +86,9 @@ class AuthorViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    filter_backends = [filters.SearchFilter]
+    filterset_fields = ['name']
+    search_fields = ['name']
 
     def dispatch(self, request, *args, **kwargs):
         # if request.method in ('POST', 'PUT', 'DELETE') and not request.user.is_superuser:
@@ -87,6 +101,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class PublisherViewSet(viewsets.ModelViewSet):
     queryset = Publisher.objects.all()
     serializer_class = PublisherSerializer
+    filter_backends = [filters.SearchFilter]
+    filterset_fields = ['name']
+    search_fields = ['name']
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -104,6 +121,9 @@ class PublisherViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    filter_backends = [filters.SearchFilter]
+    filterset_fields = ['rating']
+    search_fields = ['rating']
 
     def dispatch(self, request, *args, **kwargs):
         if request.method in ('GET', 'POST', 'PUT', 'DELETE'):
