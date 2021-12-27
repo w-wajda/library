@@ -55,8 +55,8 @@ class BookViewSet(viewsets.ModelViewSet):
     # ordering_fields = '__all__'
     ordering = ('publication_year', )
     pagination_class = LargeResultsSetPagination
-    authentication_classes = (TokenAuthentication,)  # - jeśli mamy IsAuthenticated, to musze byc zalgowana tokenem
-    permission_classes = (IsAuthenticated, )  # - w settings jest AllowAny, wszędzie dostęp, tutaj muszę się zalogować
+    authentication_classes = (TokenAuthentication,)  # jeśli mamy IsAuthenticated, to musze byc zalgowana tokenem
+    permission_classes = (IsAuthenticated, )  # w settings jest AllowAny, wszędzie dostęp, tutaj muszę się autoryzowane
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
