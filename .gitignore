@@ -1,0 +1,8 @@
+# katalog konfiguracji pycharm
+.idea
+# baza danych
+db.sqlite3
+# wirtualne środowisko
+venv/
+# katalog z tymczasowymi danymi pythona
+__pycache__

@@ -4,7 +4,8 @@ from libraries.models import (
     Category,
     Publisher,
     Book,
-    Review
+    Review,
+    BorrowedBook
 )
 
 
@@ -15,19 +16,29 @@ class AuthorAdmin(admin.ModelAdmin):
         }),
         ('Additional info', {
             'fields': ('date_birth',)
-        })
+        }),
     )
     search_fields = ('name', 'surname')
 
 
 class PublisherAdmin(admin.ModelAdmin):
-    fields = ('name',)
-    search_fields = ('name',)
+    fieldsets = (
+        ("Publisher data", {
+            'fields': ('name', )
+        }),
+    )
+    search_fields = ('books__title', 'name',)
+    list_filter = ('books',)
 
 
 class CategoryAdmin(admin.ModelAdmin):
-    fields = ('name',)
-    search_fields = ('name',)
+    fieldsets = (
+        ("Category data", {
+            'fields': ('name',)
+        }),
+    )
+    search_fields = ('books__title', 'name')
+    list_filter = ('books', )
 
 
 class BookAdmin(admin.ModelAdmin):
@@ -40,14 +51,29 @@ class BookAdmin(admin.ModelAdmin):
         }),
     )
     list_display = ('title', 'author', 'publisher', 'publication_year')
-    search_fields = ('title', 'author', 'publisher')
+    search_fields = ('title', 'author__name', 'author__surname', 'publisher__name')
     list_filter = ('author', 'categories', 'publisher')
 
 
 class ReviewAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ("Review data", {
+            'fields': ('book',)
+        }),
+        ('Additional info', {
+            'fields': ('rating', 'entry')
+        }),
+    )
     list_display = ('book', 'rating', 'date_review')
-    list_filter = ('book',)
-    search_fields = ('book',)
+    list_filter = ('book', 'rating', 'date_review')
+    search_fields = ('book__title',)
+
+
+class BorrowedBookAdmin(admin.ModelAdmin):
+    fields = ('user', 'book', 'date_start', 'date_end')
+    search_fields = ('book__title', 'user__first_name', 'user__last_name')
+    list_filter = ('date_start', 'date_end')
+    list_display = ('book', 'date_start', 'date_end')
 
 
 admin.site.register(Author, AuthorAdmin)
@@ -55,3 +81,4 @@ admin.site.register(Publisher, PublisherAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Book, BookAdmin)
 admin.site.register(Review, ReviewAdmin)
+admin.site.register(BorrowedBook, BorrowedBookAdmin)

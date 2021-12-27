@@ -1,60 +1,82 @@
 from django.contrib.auth.models import (
     User,
 )
-
 from rest_framework import serializers
+from rest_framework.authtoken.models import Token
+from rest_framework.validators import UniqueValidator
 
 from libraries.models import (
     Book,
     Author,
     Category,
     Publisher,
-    Review
+    Review,
+    BorrowedBook
 )
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'url', 'username', 'email', 'groups']
+        fields = ['id', 'username', 'first_name', 'last_name', 'password', 'email']
+        extra_kwargs = {
+            'password': {'required': True, 'write_only': True},
+            'first_name': {'required': True},
+            'last_name': {'required': True},
+            'email': {'required': True, 'validators': [UniqueValidator(queryset=User.objects.all())]}
+        }  # hasło wymagane, nie zostanie pokazane, obowiązkowe imie, nazwisko i mail (mail unikatowy)
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)  # utworzenie user
+        Token.objects.create(user=user)  # utworzenie tokena
+        return user
+
+
+class SimpleBookSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'author']
 
 
 class AuthorSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=30)
     surname = serializers.CharField(max_length=50)
     date_birth = serializers.DateField(required=False)
+    books = SimpleBookSerializer(many=True)
 
     class Meta:
         fields = '__all__'
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    books = SimpleBookSerializer(many=True)
 
     class Meta:
         model = Category
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'books']
         # alternatywa do usunięcia walidatora unikalności (usuwa wszystkie walidatory - nie do końca dobre rozwiązanie)
         extra_kwargs = {
-            'name': {'validators': []},
+            'name': {'validators': []},  # extra_kwargs dodatkowe argumenty do fields
         }
 
 
 class PublisherSerializer(serializers.ModelSerializer):
+    books = SimpleBookSerializer(many=True)
 
     class Meta:
         model = Publisher
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'books']
         extra_kwargs = {
             'name': {'validators': []},
         }
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    book = SimpleBookSerializer(many=False)
 
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = ['id', 'book', 'rating', 'entry', 'date_review']
         # depth = 2
 
 
@@ -68,7 +90,7 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = ['id', 'title', 'author', 'categories', 'publisher', 'publication_year', 'description', 'review']
 
-    def create(self, validated_data):
+    def create(self, validated_data):  # tworzony create bo mamy get or create, a autora mamy unikalnego
         # dla many to one
         author = validated_data.pop('author')
 
@@ -76,7 +98,7 @@ class BookSerializer(serializers.ModelSerializer):
         surname = author['surname']
         date_birth = author.get('date_birth')
 
-        # To jest inny rodzaj zapisu get_or_create
+        # Inny rodzaj zapisu get_or_create
         # try:
         #     author = Author.objects.get(name=name, surname=surname)
         # except Author.DoesNotExist:
@@ -150,5 +172,11 @@ class BookSerializer(serializers.ModelSerializer):
         return instance
 
 
+class BorrowedBookSerializer(serializers.ModelSerializer):
+    # book = BookSerializer(many=False)
+    # user = UserSerializer(many=False)
 
+    class Meta:
+        model = BorrowedBook
+        fields = ['id', 'user', 'book', 'date_start', 'date_end']
 

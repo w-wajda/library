@@ -1,11 +1,9 @@
+from base import urls_api
 from django.contrib import admin
 from django.urls import (
     include,
     path
 )
-
-from base import urls_api
-
 from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [

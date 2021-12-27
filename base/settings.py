@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+from celery.schedules import crontab
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -83,6 +85,9 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 5,
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
     ]
 }
 
@@ -123,7 +128,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Warsaw'
 
 USE_I18N = True
 
@@ -139,3 +144,26 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'wioletta.wajda82@gmail.com'
+EMAIL_HOST_PASSWORD = ''
+
+CELERY_BROKER_URL = 'redis://localhost:6379'
+
+CELERY_BEAT_SCHEDULE = {
+ # 'send-summary-every-hour': {
+ #       'task': 'summary',
+ #        # There are 4 ways we can handle time, read further
+ #       'schedule': 3600.0,
+ #        # If you're using any arguments
+ #       'args': (‘We don’t need any’,),
+ #    },
+    # Executes everyday at 7am
+    'return_book_notification_everyday': {
+        'task': 'libraries.tasks.return_book_notification',
+        'schedule': crontab(minute=0, hour=7),
+    },
+}

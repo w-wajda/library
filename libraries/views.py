@@ -1,40 +1,39 @@
 from django.contrib.auth.models import (
     User,
 )
-
-from django.http.response import HttpResponseNotAllowed
 from django_filters.rest_framework import DjangoFilterBackend
-
 from rest_framework import (
     viewsets,
     filters
 )
-from rest_framework import permissions
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+    BasePermission,
+    AllowAny
+)
 from libraries.models import (
     Book,
     Author,
     Category,
     Publisher,
-    Review
+    Review,
+    BorrowedBook
 )
-
 from libraries.serializers import (
     UserSerializer,
     BookSerializer,
     AuthorSerializer,
     CategorySerializer,
     PublisherSerializer,
-    ReviewSerializer
+    ReviewSerializer,
+    BorrowedBookSerializer
 )
 
 
 class LargeResultsSetPagination(PageNumberPagination):
-    page_size = 5
+    page_size = 10
     page_size_query_param = 'page_size'
     max_page_size = 10
 
@@ -42,7 +41,25 @@ class LargeResultsSetPagination(PageNumberPagination):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (AllowAny,)
+
+    def check_permissions(self, request):
+        if self.action in ('create', ) and self.request.user.is_authenticated:
+            return self.permission_denied(request)
+        elif self.action in ('update', ) and not (self.request.user.is_superuser or self.request.user.is_staff):
+            return self.permission_denied(request)
+        elif self.action in ('destroy', ) and not self.request.user.is_superuser:
+            return self.permission_denied(request)
+        else:
+            return super().check_permissions(request)
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return super().get_queryset()
+        else:
+            return super().get_queryset().filter(id=user.id)
+        # super wywołuje metode get_queryset z nadrzędengo modelu ModelViewSet
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -55,97 +72,102 @@ class BookViewSet(viewsets.ModelViewSet):
     # ordering_fields = '__all__'
     ordering = ('publication_year', )
     pagination_class = LargeResultsSetPagination
-    authentication_classes = (TokenAuthentication,)  # jeśli mamy IsAuthenticated, to musze byc zalgowana tokenem
-    permission_classes = (IsAuthenticated, )  # w settings jest AllowAny, wszędzie dostęp, tutaj muszę się autoryzowane
+    # authentication_classes = (TokenAuthentication,)  # wymiennie, jeśli w stetings nie ustawie globalnie
+    permission_classes = (IsAuthenticatedOrReadOnly,)  # w settings jest AllowAny,
 
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
+    def check_permissions(self, request):
+        if self.action in ('create', 'update') and not (self.request.user.is_superuser or self.request.user.is_staff):
+            return self.permission_denied(request)
+        elif self.action in ('destroy', ) and not self.request.user.is_superuser:
+            return self.permission_denied(request)
+        else:
+            return super().check_permissions(request)
 
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
 
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
+class PermissionForStaffOrSuperuser(BasePermission):
+    def has_permission(self, request, view):  # view to jest self w ViewSet
+        if view.action in ('create', 'update', 'destroy') and not (request.user.is_staff or request.user.is_superuser):
+            return False
+        return True
 
 
-class AuthorViewSet(viewsets.ModelViewSet):
+class BaseModelViewSet(viewsets.ModelViewSet):
+    filter_backends = [filters.SearchFilter]
+    pagination_class = LargeResultsSetPagination
+    permission_classes = (IsAuthenticatedOrReadOnly, PermissionForStaffOrSuperuser)
+
+
+class AuthorViewSet(BaseModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    filter_backends = [filters.SearchFilter]
     filterset_fields = ['name', 'surname']
     search_fields = ['name', 'surname']
-    pagination_class = LargeResultsSetPagination
 
 
-    def create(self, request, *args, **kwargs):
-        author = Author.objects.create(name=request.data['name'],
-                                       surname=request.data['surname'],
-                                       date_birth=request.data['date_birth'])
-        serializer = AuthorSerializer(author, many=False)
-        return Response(serializer.data)
-
-    def update(self, request, *args, **kwargs):
-        author = self.get_object()
-        author.name = request.data['name']
-        author.surname = request.data['surname']
-        author.date_birth = request.data['date_birth']
-        author.save()
-        serializer = AuthorSerializer(author, many=False)
-        return Response(serializer.data)
-
-    def destroy(self, request, *args, **kwargs):
-        author = self.get_object()
-        author.delete()
-        return Response('Author removed')
-
-
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(BaseModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    filter_backends = [filters.SearchFilter]
     filterset_fields = ['name']
     search_fields = ['name']
-    pagination_class = LargeResultsSetPagination
 
 
-    def dispatch(self, request, *args, **kwargs):
-        # if request.method in ('POST', 'PUT', 'DELETE') and not request.user.is_superuser:
-        if request.method in ('GET', 'POST', 'PUT', 'DELETE'):
-            # return HttpResponseNotAllowed({'Error': 'Not allowed'})
-            # else:
-            return super().dispatch(request, *args, **kwargs)
-
-
-class PublisherViewSet(viewsets.ModelViewSet):
+class PublisherViewSet(BaseModelViewSet):
     queryset = Publisher.objects.all()
     serializer_class = PublisherSerializer
-    filter_backends = [filters.SearchFilter]
     filterset_fields = ['name']
     search_fields = ['name']
-    pagination_class = LargeResultsSetPagination
-
-
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        # if self.request.user.is_superuser:
-        return super().update(request, *args, **kwargs)
-        # else:
-        # return HttpResponseNotAllowed({'Error': 'Not allowed'})
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    filter_backends = [filters.SearchFilter]
-    filterset_fields = ['rating']
-    search_fields = ['rating']
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['book', 'rating', 'entry']
+    search_fields = ['book', 'rating', 'entry']
+    ordering_fields = ['book', 'rating', 'entry']
+    ordering = ('book', 'entry',)
     pagination_class = LargeResultsSetPagination
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.method in ('GET', 'POST', 'PUT', 'DELETE'):
-            return super().dispatch(request, *args, **kwargs)
+    def check_permissions(self, request):
+        if self.action in ('create', ) and not (
+                self.request.user or self.request.user.is_staff or self.request.user.is_superuser
+        ):
+            return self.permission_denied(request)
+        elif self.action in ('update', 'destroy') and not (
+                self.request.user.is_staff or self.request.user.is_superuser
+        ):
+            return self.permission_denied(request)  # zwraca brak uprawnień
+        else:
+            return super().check_permissions(request)  # wywołuje standardowe funkcje
+
+
+class BorrowedBookViewSet(viewsets.ModelViewSet):
+    queryset = BorrowedBook.objects.all()
+    serializer_class = BorrowedBookSerializer
+    pagination_class = LargeResultsSetPagination
+    permission_classes = (IsAuthenticated, )
+    filter_backends = [filters.SearchFilter]
+    filterset_fields = ['book']
+    search_fields = ['book__title']
+
+    def check_permissions(self, request):
+        if self.action in ('list', 'retrieve') and not self.request.user.is_authenticated:
+            return self.permission_denied(request)
+        elif self.action in ('create', 'update', 'destroy') and not (
+            self.request.user.is_staff or self.request.user.is_superuser
+        ):
+            return self.permission_denied(request)
+        else:
+            return super().check_permissions(request)
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser or user.is_staff:
+            return super().get_queryset()
+        else:
+            return super().get_queryset().filter(user_id=user.id)
+
+
+
+
