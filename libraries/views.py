@@ -12,6 +12,7 @@ from rest_framework import (
 from rest_framework import permissions
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from libraries.models import (
@@ -55,6 +56,7 @@ class BookViewSet(viewsets.ModelViewSet):
     ordering = ('publication_year', )
     pagination_class = LargeResultsSetPagination
     authentication_classes = (TokenAuthentication,)  # - jeśli mamy IsAuthenticated, to musze byc zalgowana tokenem
+    permission_classes = (IsAuthenticated, )  # - w settings jest AllowAny, wszędzie dostęp, tutaj muszę się zalogować
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -73,6 +75,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
     filterset_fields = ['name', 'surname']
     search_fields = ['name', 'surname']
     pagination_class = LargeResultsSetPagination
+
 
     def create(self, request, *args, **kwargs):
         author = Author.objects.create(name=request.data['name'],
@@ -104,6 +107,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     search_fields = ['name']
     pagination_class = LargeResultsSetPagination
 
+
     def dispatch(self, request, *args, **kwargs):
         # if request.method in ('POST', 'PUT', 'DELETE') and not request.user.is_superuser:
         if request.method in ('GET', 'POST', 'PUT', 'DELETE'):
@@ -119,6 +123,7 @@ class PublisherViewSet(viewsets.ModelViewSet):
     filterset_fields = ['name']
     search_fields = ['name']
     pagination_class = LargeResultsSetPagination
+
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
