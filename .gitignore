@@ -6,3 +6,8 @@ db.sqlite3
 venv/
 # katalog z tymczasowymi danymi pythona
 __pycache__
+# zmienne środowiskowe
+.env
+# informacje na temat zaplanowanych tasków celery
+celerybeat-schedule
+
