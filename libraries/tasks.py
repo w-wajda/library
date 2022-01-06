@@ -19,5 +19,9 @@ def return_book_notification():
 
 @app.task()
 def return_book_notification_after_time():
-    borrowed_book_to_return_after_time = BorrowedBook.objects.filter()
-    pass
+    borrowed_book_to_return_after_time = BorrowedBook.objects.filter(date_end__lt=date.today())
+    for borrowed_book in borrowed_book_to_return_after_time:
+        send_mail('A borrowed book to return - reminder',
+                  f'You are after the book return deadline {borrowed_book.book.title}. Please return it. \n'
+                  f'Best regards, \nYour Library', from_email='wioletta.wajda82@gmail.com',
+                  recipient_list=[borrowed_book.user.email])
