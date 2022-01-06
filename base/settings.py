@@ -162,9 +162,14 @@ EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 CELERY_BROKER_URL = env('CELERY_BROKER_URL')
 
 CELERY_BEAT_SCHEDULE = {
-    # Executes everyday at 7am
-    'return_book_notification_everyday': {
+    # It occurs at 7 am on the day of return
+    'return_book_notification_reminder': {
         'task': 'libraries.tasks.return_book_notification',
+        'schedule': crontab(minute=0, hour=7),
+    },
+    # Carried out every day at 7am after the date
+    'return_book_notification_every_day_after_the_time': {
+        'task': 'libraries.tasks.return_book_notification_after_time',
         'schedule': crontab(minute=0, hour=7),
     },
 }
