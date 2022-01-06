@@ -17,3 +17,7 @@ def return_book_notification():
                   recipient_list=[borrowed_book.user.email])
 
 
+@app.task()
+def return_book_notification_after_time():
+    borrowed_book_to_return_after_time = BorrowedBook.objects.filter()
+    pass
