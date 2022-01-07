@@ -116,6 +116,7 @@ class BookSerializer(serializers.ModelSerializer):
     publisher = ShortPublisherSerializer(many=False)
     review = ShortReviewSerializer(many=True, read_only=True)
 
+
     class Meta:
         model = Book
         fields = ['id', 'title', 'author', 'categories', 'publisher', 'publication_year', 'description', 'review']

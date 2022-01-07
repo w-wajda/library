@@ -87,7 +87,7 @@ class Review(models.Model):
 
 class BorrowedBook(models.Model):
     user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, verbose_name='Book', on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, verbose_name='Book', on_delete=models.CASCADE, related_name='borrowed')
     date_start = models.DateField(verbose_name='Date borrowed', default=timezone.now, editable=True)
     date_end = models.DateField(verbose_name='Date return', default=timezone.now() + timezone.timedelta(days=30),
                                 editable=True)
