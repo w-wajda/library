@@ -32,24 +32,54 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-class SimpleBookSerializer(serializers.ModelSerializer):
+class ShortAuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Author
+        fields = ['id', 'name', 'surname']
+
+
+class ShortBookSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['id', 'title']
+
+
+class SimpleAuthorBookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = ['id', 'title', 'author']
+
+
+class ShortCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+
+
+class ShortPublisherSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Publisher
+        fields = ['id', 'name']
+
+
+class ShortReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'rating', 'entry', 'date_review']
 
 
 class AuthorSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=30)
     surname = serializers.CharField(max_length=50)
     date_birth = serializers.DateField(required=False)
-    books = SimpleBookSerializer(many=True)
+    books = ShortBookSerializer(many=True)
 
     class Meta:
         fields = '__all__'
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    books = SimpleBookSerializer(many=True)
+    books = SimpleAuthorBookSerializer(many=True)
 
     class Meta:
         model = Category
@@ -61,7 +91,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class PublisherSerializer(serializers.ModelSerializer):
-    books = SimpleBookSerializer(many=True)
+    books = SimpleAuthorBookSerializer(many=True)
 
     class Meta:
         model = Publisher
@@ -72,7 +102,7 @@ class PublisherSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    book = SimpleBookSerializer(many=False)
+    book = SimpleAuthorBookSerializer(many=False)
 
     class Meta:
         model = Review
@@ -81,10 +111,10 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class BookSerializer(serializers.ModelSerializer):
-    author = AuthorSerializer(many=False)
-    categories = CategorySerializer(many=True)
-    publisher = PublisherSerializer(many=False)
-    review = ReviewSerializer(many=True, read_only=True)
+    author = ShortAuthorSerializer(many=False)
+    categories = ShortCategorySerializer(many=True)
+    publisher = ShortPublisherSerializer(many=False)
+    review = ShortReviewSerializer(many=True, read_only=True)
 
     class Meta:
         model = Book

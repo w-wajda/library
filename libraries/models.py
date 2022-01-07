@@ -50,8 +50,9 @@ class Book(models.Model):
     categories = models.ManyToManyField(Category, verbose_name='Categories', related_name='books')
     # related_name='books' - tworzy się relacja odwrotna
     publisher = models.ForeignKey(Publisher, verbose_name='Publisher', on_delete=models.CASCADE, related_name='books')
-    publication_year = models.PositiveSmallIntegerField(verbose_name='Publication year', null=True, blank=True)
+    publication_year = models.PositiveSmallIntegerField(verbose_name='Publication year')
     description = models.TextField(verbose_name='Description', null=True, blank=True)
+    book_cover = models.ImageField(verbose_name='Book cover', upload_to='covers', null=True, blank=True)
 
     def __str__(self):
         return self.title

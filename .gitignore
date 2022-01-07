@@ -10,4 +10,7 @@ __pycache__
 .env
 # informacje na temat zaplanowanych tasków celery
 celerybeat-schedule
-
+# media
+media/
+# static
+static/

@@ -47,7 +47,7 @@ class BookAdmin(admin.ModelAdmin):
             'fields': ('title', 'author', 'description')
         }),
         ('Additional info', {
-            'fields': ('categories', ('publisher', 'publication_year'))
+            'fields': ('categories', ('publisher', 'publication_year'), 'book_cover')
         }),
     )
     list_display = ('title', 'author', 'publisher', 'publication_year')
