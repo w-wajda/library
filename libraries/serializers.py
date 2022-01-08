@@ -110,16 +110,45 @@ class ReviewSerializer(serializers.ModelSerializer):
         # depth = 2
 
 
+class DateEndBorrowedBookSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BorrowedBook
+        fields = ['id', 'date_end']
+
+
+class BorrowedBookSerializer(serializers.ModelSerializer):
+    # book = BookSerializer(many=False)
+    # user = UserSerializer(many=False)
+
+    class Meta:
+        model = BorrowedBook
+        fields = ['id', 'user', 'book', 'date_start', 'date_end']
+
+
 class BookSerializer(serializers.ModelSerializer):
     author = ShortAuthorSerializer(many=False)
     categories = ShortCategorySerializer(many=True)
     publisher = ShortPublisherSerializer(many=False)
     review = ShortReviewSerializer(many=True, read_only=True)
-
+    # date_end_borrowed_book = DateEndBorrowedBookSerializer(many=True, source='borrowed')  # book.borrowed.all()
+    day_of_return = serializers.SerializerMethodField()
 
     class Meta:
         model = Book
-        fields = ['id', 'title', 'author', 'categories', 'publisher', 'publication_year', 'description', 'review']
+        fields = ['id', 'title', 'author', 'categories', 'publisher', 'publication_year', 'description', 'review',
+                  'day_of_return']
+
+    def get_day_of_return(self, obj: Book):
+        """
+        last_borrowed = obj.borrowed.order_by('-date_end')[0] - w przypadku gdy nie bedziemy miec wypozyczenia to
+        wywali sie IndexError. Chcemy temu zapobiec.Mozemy zrobic try, except ALBO uzyc .first() na querysecie
+        np. obj.borrowed.order_by('-date_end').first() - zwroci nam obiket BorrowedBook albo None
+        """
+        last_borrowed = obj.borrowed.order_by('-date_end').first()
+        if last_borrowed:
+            return last_borrowed.date_end
+        else:
+            return None
 
     def create(self, validated_data):  # tworzony create bo mamy get or create, a autora mamy unikalnego
         # dla many to one
@@ -203,11 +232,5 @@ class BookSerializer(serializers.ModelSerializer):
         return instance
 
 
-class BorrowedBookSerializer(serializers.ModelSerializer):
-    # book = BookSerializer(many=False)
-    # user = UserSerializer(many=False)
 
-    class Meta:
-        model = BorrowedBook
-        fields = ['id', 'user', 'book', 'date_start', 'date_end']
 

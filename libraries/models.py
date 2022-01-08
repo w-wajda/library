@@ -93,7 +93,7 @@ class BorrowedBook(models.Model):
                                 editable=True)
 
     def __str__(self):
-        return self.book.title
+        return f'{self.book.title} {self.date_end}'
 
 
 @receiver(post_save, sender=BorrowedBook)  # dekorator, który nasłuchuje i wsyła mail z informacją o rezerwacji książki
