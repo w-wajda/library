@@ -1,3 +1,6 @@
+from datetime import date
+
+from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django.db import models
@@ -85,9 +88,20 @@ class Review(models.Model):
         ordering = ('-entry', )
 
 
+def check_if_borrowed(book_id):
+    if isinstance(book_id, Book):  # sprawdzenie czy book_id jest instancją Book
+        obj = book_id
+    else:
+        obj = Book.objects.get(pk=book_id)
+
+    if obj.borrowed.all().filter(date_end__gt=date.today()):
+        raise ValidationError('This book is borrowed')
+
+
 class BorrowedBook(models.Model):
     user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, verbose_name='Book', on_delete=models.CASCADE, related_name='borrowed')
+    book = models.ForeignKey(Book, verbose_name='Book', on_delete=models.CASCADE, related_name='borrowed',
+                             validators=[check_if_borrowed])  # validator sprawdzający pożyczoną książkę
     date_start = models.DateField(verbose_name='Date borrowed', default=timezone.now, editable=True)
     date_end = models.DateField(verbose_name='Date return', default=timezone.now() + timezone.timedelta(days=30),
                                 editable=True)
