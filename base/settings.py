@@ -170,9 +170,14 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'libraries.tasks.return_book_notification',
         'schedule': crontab(minute=0, hour=7),
     },
-    # Carried out every day at 7am after the date
-    'return_book_notification_every_day_after_the_time': {
+    # It occurs every day at 7 am after the date of return
+    'return_book_notification_every_day_after_the_deadline': {
         'task': 'libraries.tasks.return_book_notification_after_time',
+        'schedule': crontab(minute=0, hour=7),
+    },
+    # It occurs at 7 am before 3 days the date of return
+    'reminder_to_return_the_book_3_days_before_the_deadline': {
+        'task': 'libraries.tasks.return_book_notification_3_day_before',
         'schedule': crontab(minute=0, hour=7),
     },
 }
