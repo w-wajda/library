@@ -110,7 +110,7 @@ class BorrowedBook(models.Model):
         return f'{self.book.title} {self.date_end}'
 
 
-@receiver(post_save, sender=BorrowedBook)  # dekorator, który nasłuchuje i wsyła mail z informacją o rezerwacji książki
+@receiver(post_save, sender=BorrowedBook)  # dekorator nasłuchuje powstanie obiektu i wsyła mail z info o wypozyczeniu
 def send_notification_email(sender, instance: BorrowedBook, created=False, **kwargs):
     if created and instance.user.email:
         send_mail('A borrowed book', f'In day {instance.book.title}, You have borrowed the book {instance.book.title}. '
