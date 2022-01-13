@@ -9,6 +9,7 @@ from libraries.models import (
 )
 
 
+@admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Author's data", {
@@ -21,6 +22,7 @@ class AuthorAdmin(admin.ModelAdmin):
     search_fields = ('name', 'surname')
 
 
+@admin.register(Publisher)
 class PublisherAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Publisher data", {
@@ -31,6 +33,7 @@ class PublisherAdmin(admin.ModelAdmin):
     list_filter = ('books',)
 
 
+@admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Category data", {
@@ -41,6 +44,7 @@ class CategoryAdmin(admin.ModelAdmin):
     list_filter = ('books', )
 
 
+@admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Basic data', {
@@ -55,6 +59,7 @@ class BookAdmin(admin.ModelAdmin):
     list_filter = ('author', 'categories', 'publisher')
 
 
+@admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Review data", {
@@ -69,6 +74,7 @@ class ReviewAdmin(admin.ModelAdmin):
     search_fields = ('book__title',)
 
 
+@admin.register(BorrowedBook)
 class BorrowedBookAdmin(admin.ModelAdmin):
     fields = ('user', 'book', 'date_start', 'date_end')
     search_fields = ('book__title', 'user__first_name', 'user__last_name')
@@ -76,9 +82,3 @@ class BorrowedBookAdmin(admin.ModelAdmin):
     list_display = ('book', 'date_start', 'date_end')
 
 
-admin.site.register(Author, AuthorAdmin)
-admin.site.register(Publisher, PublisherAdmin)
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(Book, BookAdmin)
-admin.site.register(Review, ReviewAdmin)
-admin.site.register(BorrowedBook, BorrowedBookAdmin)
