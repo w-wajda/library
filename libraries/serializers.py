@@ -153,7 +153,6 @@ class BookSerializer(serializers.ModelSerializer):
     def create(self, validated_data):  # tworzony create bo mamy get or create, a autora mamy unikalnego
         # dla many to one
         author = validated_data.pop('author')
-
         name = author['name']
         surname = author['surname']
         date_birth = author.get('date_birth')
@@ -165,6 +164,7 @@ class BookSerializer(serializers.ModelSerializer):
         #     author = Author.objects.create(name=name, surname=surname, birth_date=birth_date)
 
         # zapis zapobiegnie stworzenie duplikatu
+
         author, created = Author.objects.get_or_create(name=name, surname=surname, defaults={'date_birth': date_birth})
         validated_data['author'] = author
 
