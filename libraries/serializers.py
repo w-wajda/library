@@ -188,6 +188,8 @@ class BookSerializer(serializers.ModelSerializer):
 
     def update(self, instance: Book, validated_data):
         instance.title = validated_data.get('title', instance.title)
+        instance.publication_year = validated_data.get('publication_year', instance.publication_year)
+        instance.description = validated_data.get('description', instance.description)
 
         if 'author' in validated_data:
             author = validated_data.get('author')
@@ -195,7 +197,6 @@ class BookSerializer(serializers.ModelSerializer):
             name = author['name']
             surname = author['surname']
             date_birth = author.get('date_birth')
-
             author, created = Author.objects.get_or_create(name=name, surname=surname,
                                                            defaults={'date_birth': date_birth})
             instance.author = author
@@ -219,13 +220,9 @@ class BookSerializer(serializers.ModelSerializer):
             publisher = validated_data.get('publisher')
 
             name = publisher['name']
-
             publisher, created = Publisher.objects.get_or_create(name=name)
 
             instance.publisher = publisher
-
-        instance.publication_year = validated_data.get('publication_year', instance.publication_year)
-        instance.description = validated_data.get('description', instance.description)
 
         instance.save()
 
