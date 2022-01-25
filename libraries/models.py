@@ -8,6 +8,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from libraries.managers import (
+    BookManager,
+)
+
 
 @receiver(post_save, sender=User)  # dekorator, który nasłuchuje zapisy użytkownika, następnie wsyła mail powitalny
 def send_welcome_email(sender, instance: User, created=False, **kwargs):
@@ -47,26 +51,6 @@ class Publisher(models.Model):
         return self.name
 
 
-class BookModernManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(publication_year__gte=2019)  # większe bądź równe
-
-
-class BookClassicManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(publication_year__lt=2019)  # mniejsze niż 2019
-
-
-class BookAustenManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(author__surname='Austen')
-
-
-class BookWalterManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(author__surname='Walter')
-
-
 class Book(models.Model):
     title = models.CharField(max_length=100, verbose_name='Title', unique=True)
     author = models.ForeignKey(Author, verbose_name='Author', on_delete=models.CASCADE, related_name='books')
@@ -77,11 +61,13 @@ class Book(models.Model):
     description = models.TextField(verbose_name='Description', null=True, blank=True)
     book_cover = models.ImageField(verbose_name='Book cover', upload_to='covers', null=True, blank=True)
 
-    objects = models.Manager()
-    modern_books = BookModernManager()
-    old_books = BookClassicManager()
-    austen_books = BookAustenManager()
-    walter_books = BookWalterManager()
+    objects = models.Manager()  # można zamienić models.Manager() na BookManager(), żeby było jedno jak sie ma wszystko
+    books = BookManager()
+    """Inny sposób zapisu """
+    # modern_books = BookModernManager()
+    # old_books = BookClassicManager()
+    # austen_books = BookAustenManager()
+    # walter_books = BookWalterManager()
 
     def __str__(self):
         return self.title
