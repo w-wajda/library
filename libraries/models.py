@@ -32,6 +32,7 @@ class Author(models.Model):
 
     class Meta:
         unique_together = [['name', 'surname']]
+        ordering = ('date_birth', )
 
 
 class Category(models.Model):
@@ -72,6 +73,10 @@ class Book(models.Model):
     def __str__(self):
         return self.title
 
+    class Meta:
+        # db_table = 'books'
+        order_with_respect_to = 'author'
+
 
 class Review(models.Model):
     BAD = 0
@@ -97,7 +102,7 @@ class Review(models.Model):
         return self.book.title
 
     class Meta:
-        ordering = ('-entry', )
+        ordering = ('-date_review', )
 
 
 def check_if_borrowed(book_id):
@@ -120,6 +125,9 @@ class BorrowedBook(models.Model):
 
     def __str__(self):
         return f'{self.book.title} {self.date_end}'
+
+    class Meta:
+        ordering = ('-date_end', )
 
 
 @receiver(post_save, sender=BorrowedBook)  # dekorator nasłuchuje powstanie obiektu i wsyła mail z info o wypozyczeniu
