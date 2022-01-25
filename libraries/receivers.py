@@ -12,7 +12,6 @@ from libraries.models import (
     BorrowedBook,
 )
 
-
 @receiver(post_save, sender=User)  # dekorator, który nasłuchuje zapisy użytkownika, następnie wsyła mail powitalny
 def send_welcome_email(sender, instance: User, created=False, **kwargs):
     if created and instance.email:  # jeśli użytkownik został stworzony, instacja to user, stad instance.email
