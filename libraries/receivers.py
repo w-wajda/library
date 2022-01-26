@@ -12,6 +12,7 @@ from libraries.models import (
     BorrowedBook,
 )
 
+
 @receiver(post_save, sender=User)  # dekorator, który nasłuchuje zapisy użytkownika, następnie wsyła mail powitalny
 def send_welcome_email(sender, instance: User, created=False, **kwargs):
     if created and instance.email:  # jeśli użytkownik został stworzony, instacja to user, stad instance.email
@@ -39,7 +40,8 @@ def send_notification_email(sender, instance: BorrowedBook, created=False, **kwa
     if created and instance.user.email:
         send_mail('A borrowed book', f'In day {instance.book.title}, You have borrowed the book {instance.book.title}. '
                                      f'Remember to return to {instance.date_end}.\n'
-                                     f'Best regards, \nYour Library', from_email='wioletta.wajda82@gmail.com',
+                                     f'Best regards, \nYour Library',
+                  from_email='wioletta.wajda82@gmail.com',
                   recipient_list=[instance.user.email])
 
 
