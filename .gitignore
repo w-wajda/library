@@ -14,3 +14,5 @@ celerybeat-schedule
 media/
 # static
 static/
+#logging
+logs/
