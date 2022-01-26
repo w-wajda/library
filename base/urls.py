@@ -23,7 +23,6 @@ urlpatterns = [
     path('password_reset_done', PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('password_reset_comfirm/<uidb64>/<token>', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('password_reset_complete', PasswordResetCompleteView.as_view(), name='password_reset_complete'),
-
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
