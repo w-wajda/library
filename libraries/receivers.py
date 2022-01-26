@@ -12,6 +12,8 @@ from libraries.models import (
     BorrowedBook,
 )
 
+import logging
+
 
 @receiver(post_save, sender=User)  # dekorator, który nasłuchuje zapisy użytkownika, następnie wsyła mail powitalny
 def send_welcome_email(sender, instance: User, created=False, **kwargs):
@@ -51,8 +53,18 @@ def author_before_save(sender, instance, **kwargs):  # arg co wysało funkcję, 
     print(instance.name, instance.surname)
 
 
+author_log = logging.getLogger('author_log')
+author_log.setLevel(logging.DEBUG)
+log_handler = logging.FileHandler('logs/author.log')
+log_handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log_handler.setFormatter(formatter)
+author_log.addHandler(log_handler)
+
+
 @receiver(post_save, sender=Author)
 def author_after_save(sender, instance, **kwargs):
     print('We just signed the author')
     print(instance.name, instance.surname)
+    author_log.info('A new author has been created' + instance.name + " " + instance.surname)
 
