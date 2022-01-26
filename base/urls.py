@@ -27,9 +27,12 @@ urlpatterns = [
     path('password_reset_complete', PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
     path('password_change', PasswordChangeView.as_view()),
-    path('password_change_done', PasswordChangeView.as_view(), name='password_change_done')
+    path('password_change_done', PasswordChangeDoneView.as_view(), name='password_change_done'),
+
+    path('__debug__/', include('debug_toolbar.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
 
 
