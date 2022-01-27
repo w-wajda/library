@@ -57,6 +57,20 @@ class BookManager(models.Manager):
         return self.get_queryset().proszynski_publisher()
 
 
+class AuthorQuerySet(models.QuerySet):
+
+    def date_birth_author(self):
+        return self.filter(date_birth='1775-12-16')
+
+
+class AuthorManager(models.Manager):
+    def get_queryset(self):
+        return AuthorQuerySet(self.model, using=self._db)
+
+    def date_birth_author(self):
+        return self.get_queryset().date_birth_author()
+
+
 """Inny sposób na zapis"""
 # class BookModernManager(models.Manager):
 #     def get_queryset(self):
