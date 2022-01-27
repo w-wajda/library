@@ -62,6 +62,9 @@ class Book(models.Model):
     # austen_books = BookAustenManager()
     # walter_books = BookWalterManager()
 
+    def is_modern(self):
+        return True if self.publication_year > 2000 else False
+
     def __str__(self):
         return self.title
 
