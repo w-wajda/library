@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from libraries.managers import (
     BookManager,
+    AuthorManager,
 )
 
 
@@ -14,6 +15,9 @@ class Author(models.Model):
     name = models.CharField(max_length=30, verbose_name='Name')
     surname = models.CharField(max_length=50, verbose_name='Surname')
     date_birth = models.DateField(verbose_name='Date of birth', null=True, blank=True)
+
+    objects = models.Manager()
+    author = AuthorManager()
 
     def __str__(self):
         return f'{self.name} {self.surname}'
