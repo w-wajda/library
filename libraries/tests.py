@@ -48,7 +48,7 @@ class LibrariesTests(TestCase):
 
     def test_book_method_is_not_modern(self):
         """powinna zwrócić False, jeśli rok jest mniejszy lub równy 2000"""
-        book = Book.objects.create(title='Test2', author=self.author, publisher=self.publisher, publication_year=2000cr)
+        book = Book.objects.create(title='Test2', author=self.author, publisher=self.publisher, publication_year=2000)
         book.categories.add(self.category)
 
         self.assertFalse(book.is_modern())
