@@ -56,11 +56,12 @@ class Book(models.Model):
 
     objects = models.Manager()  # można zamienić models.Manager() na BookManager(), żeby było jedno jak sie ma wszystko
     books = BookManager()
-    """Inny sposób zapisu """
-    # modern_books = BookModernManager()
-    # old_books = BookClassicManager()
-    # austen_books = BookAustenManager()
-    # walter_books = BookWalterManager()
+    """Inny sposób zapisu 
+    modern_books = BookModernManager()
+    old_books = BookClassicManager()
+    austen_books = BookAustenManager()
+    walter_books = BookWalterManager()
+    """
 
     def is_modern(self):
         return True if self.publication_year > 2000 else False

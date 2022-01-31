@@ -71,22 +71,25 @@ class AuthorManager(models.Manager):
         return self.get_queryset().date_birth_author()
 
 
-"""Inny sposób na zapis"""
-# class BookModernManager(models.Manager):
-#     def get_queryset(self):
-#         return super().get_queryset().filter(publication_year__gte=2019)  # większe bądź równe
-#
-#
-# class BookClassicManager(models.Manager):
-#     def get_queryset(self):
-#         return super().get_queryset().filter(publication_year__lt=2019)  # mniejsze niż 2019
-#
-#
-# class BookAustenManager(models.Manager):
-#     def get_queryset(self):
-#         return super().get_queryset().filter(author__surname='Austen')
-#
-#
-# class BookWalterManager(models.Manager):
-#     def get_queryset(self):
-#         return super().get_queryset().filter(author__surname='Walter')
+"""Inny sposób na zapis
+
+class BookModernManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(publication_year__gte=2019)  # większe bądź równe
+
+
+class BookClassicManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(publication_year__lt=2019)  # mniejsze niż 2019
+
+
+class BookAustenManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(author__surname='Austen')
+
+
+class BookWalterManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(author__surname='Walter')
+        
+"""
