@@ -199,10 +199,6 @@ class BookSerializer(serializers.ModelSerializer):
             date_birth = author.get('date_birth')
             author, created = Author.objects.get_or_create(name=name, surname=surname,
                                                            defaults={'date_birth': date_birth})
-
-            if created:
-                instance.author.delete()
-
             instance.author = author
 
         if 'categories' in validated_data:
@@ -226,19 +222,11 @@ class BookSerializer(serializers.ModelSerializer):
             name = publisher['name']
             publisher, created = Publisher.objects.get_or_create(name=name)
 
-            if created:
-                instance.publisher.delete()
-
             instance.publisher = publisher
 
         instance.save()
 
         return instance
-
-
-
-
-
 
 
 
